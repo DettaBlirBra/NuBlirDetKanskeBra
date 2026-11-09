@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <title>?</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0f172a;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+        .box {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(45deg, #3b82f6, #ec4899);
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.1s ease;
+        }
+        .box:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box" id="clickBox"></div>
+
+    <script>
+        const box = document.getElementById('clickBox');
+        
+        const colors = [
+            ['#3b82f6', '#ec4899'],
+            ['#10b981', '#f59e0b'],
+            ['#8b5cf6', '#ef4444'],
+            ['#06b6d4', '#3b82f6'],
+            ['#f43f5e', '#eab308']
+        ];
+
+        box.addEventListener('click', () => {
+            // Rotera
+            const randomRotation = Math.floor(Math.random() * 360);
+            box.style.transform = `rotate(${randomRotation}deg)`;
+            
+            // Byt färg
+            const randomPair = colors[Math.floor(Math.random() * colors.length)];
+            box.style.background = `linear-gradient(45deg, ${randomPair[0]}, ${randomPair[1]})`;
+            
+            // Ändra form lite grann
+            const radius1 = Math.floor(Math.random() * 50) + 10;
+            const radius2 = Math.floor(Math.random() * 50) + 10;
+            box.style.borderRadius = `${radius1}% ${100-radius1}% ${radius2}% ${100-radius2}%`;
+        });
+    </script>
+
+</body>
+</html>
