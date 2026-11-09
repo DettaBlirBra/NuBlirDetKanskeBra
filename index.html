@@ -2,62 +2,112 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <title>?</title>
+    <title>🎨</title>
     <style>
         body {
             margin: 0;
-            height: 100vh;
+            padding: 0;
+            background-color: #050505;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #0f172a;
-            font-family: sans-serif;
-            overflow: hidden;
+            height: 100vh;
         }
-        .box {
-            width: 150px;
-            height: 150px;
-            background: linear-gradient(45deg, #3b82f6, #ec4899);
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.1s ease;
-        }
-        .box:active {
-            transform: scale(0.9);
+        canvas {
+            display: block;
+            cursor: crosshair;
         }
     </style>
 </head>
 <body>
 
-    <div class="box" id="clickBox"></div>
+    <canvas id="canvas"></canvas>
 
     <script>
-        const box = document.getElementById('clickBox');
-        
-        const colors = [
-            ['#3b82f6', '#ec4899'],
-            ['#10b981', '#f59e0b'],
-            ['#8b5cf6', '#ef4444'],
-            ['#06b6d4', '#3b82f6'],
-            ['#f43f5e', '#eab308']
-        ];
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
 
-        box.addEventListener('click', () => {
-            // Rotera
-            const randomRotation = Math.floor(Math.random() * 360);
-            box.style.transform = `rotate(${randomRotation}deg)`;
-            
-            // Byt färg
-            const randomPair = colors[Math.floor(Math.random() * colors.length)];
-            box.style.background = `linear-gradient(45deg, ${randomPair[0]}, ${randomPair[1]})`;
-            
-            // Ändra form lite grann
-            const radius1 = Math.floor(Math.random() * 50) + 10;
-            const radius2 = Math.floor(Math.random() * 50) + 10;
-            box.style.borderRadius = `${radius1}% ${100-radius1}% ${radius2}% ${100-radius2}%`;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
-    </script>
 
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 8 + 2;
+                this.speedX = Math.random() * 6 - 3;
+                this.speedY = Math.random() * 6 - 3;
+                this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                this.alpha = 1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.alpha -= 0.015;
+                if (this.size > 0.2) this.size -= 0.05;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function handleParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha <= 0 || particles[i].size <= 0.2) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function createExplosion(x, y) {
+            for (let i = 0; i < 20; i++) {
+                particles.push(new Particle(x, y));
+            }
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            if (Math.random() < 0.4) {
+                particles.push(new Particle(e.clientX, e.clientY));
+            }
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (Math.random() < 0.4) {
+                particles.push(new Particle(e.touches[0].clientX, e.touches[0].clientY));
+            }
+        });
+
+        window.addEventListener('click', (e) => {
+            createExplosion(e.clientX, e.clientY);
+        });
+
+        function animate() {
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            handleParticles();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
 </body>
 </html>
